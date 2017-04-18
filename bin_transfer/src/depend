@@ -1,0 +1,5 @@
+main.o: main.c inc/checksum.h inc/file.h inc/cmdarg.h
+checksum.o: checksum.c inc/checksum.h
+file.o: file.c inc/file.h
+cmdarg.o: cmdarg.c inc/cmdarg.h
+serial.o: serial.c inc/serial.h
