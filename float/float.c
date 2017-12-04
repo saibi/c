@@ -37,6 +37,12 @@ int main(void)
 		printf("data error\n");
 
 
+	// float disp 
+	printf("3.1415= %.3f\n", 3.1415);
+
+	// float -> int
+	printf("3.1415 = %d, 3.5415 = %d\n", (int)3.1415, (int)3.5415);
+
 #if 0
 	double lotto = 1.0e10;
 	double tax = lotto * 33.0/100.0;
