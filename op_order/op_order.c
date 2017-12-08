@@ -6,7 +6,8 @@
 #define TRUE 1
 #define FALSE 0
 
-int main(void)
+#if 0
+int case1(void)
 {
 	int bSortTable = TRUE;
 	float center_diff_x;
@@ -53,4 +54,47 @@ int main(void)
 
 	return 0;
 }
+#endif 
+
+void case2(void)
+{
+	int b_base_Hawaii;
+	int frameData_isHawaii;
+	int s_retouch_edging_points_size;
+	int b_modify_impossible_points;
+
+	b_base_Hawaii = TRUE;
+	frameData_isHawaii = TRUE;
+	s_retouch_edging_points_size = 10;
+	b_modify_impossible_points = TRUE;
+
+	printf("b_base_Hawaii = %d, frameData_isHawaii = %d, s_retouch_edging_points_size = %d, b_modify_impossible_points = %d\n", b_base_Hawaii, frameData_isHawaii, s_retouch_edging_points_size, b_modify_impossible_points);
+	if ( b_base_Hawaii && frameData_isHawaii && s_retouch_edging_points_size > 0 || b_modify_impossible_points) 
+		printf("true\n");
+	else
+		printf("false\n");
+
+
+	b_base_Hawaii = FALSE;
+	frameData_isHawaii = FALSE;
+	s_retouch_edging_points_size = 0;
+	b_modify_impossible_points = TRUE;
+
+	printf("b_base_Hawaii = %d, frameData_isHawaii = %d, s_retouch_edging_points_size = %d, b_modify_impossible_points = %d\n", b_base_Hawaii, frameData_isHawaii, s_retouch_edging_points_size, b_modify_impossible_points);
+	if ( b_base_Hawaii && frameData_isHawaii && s_retouch_edging_points_size > 0 || b_modify_impossible_points) 
+		printf("true\n");
+	else
+		printf("false\n");
+
+}
+
 	
+int main(void)
+{
+	//case1();
+	case2();
+
+	return 0;
+}
+
+
