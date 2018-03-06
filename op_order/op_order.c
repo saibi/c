@@ -91,8 +91,25 @@ void case2(void)
 	
 int main(void)
 {
+	int a, b, c;
+
+	a = 1;
+	b = 0; 
+	c = 0;
+
+	if ( a || b && c ) 
+		printf("1\n");
+	else
+		printf("0\n");
+
+	if ( (a || b) && c ) 
+		printf("1\n");
+	else
+		printf("0\n");
+
 	//case1();
-	case2();
+	//case2();
+
 
 	return 0;
 }
