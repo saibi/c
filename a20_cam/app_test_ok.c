@@ -53,7 +53,15 @@
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
+/* function prototypes */
 int disp_set_addr(int w, int h, unsigned int *addr);
+void disp_stop(void);
+void disp_start(void);
+
+
+
+
+
 
 int count;
 
@@ -93,7 +101,6 @@ __disp_pixel_fmt_t disp_format;
 __disp_pixel_mod_t disp_mode;
 __disp_pixel_seq_t disp_seq;
 int read_num = 100;
-int test_num = 10;
 int req_frame_num;
 int fps = 30;
 int fps_test = 0;
@@ -101,7 +108,6 @@ int invalid_ops = 0;
 int invalid_fmt_test = 0;
 int control_test = 0;
 int ioctl_test = 0;
-int lost_frame_test = 0;
 struct test_case
 {
 	int input_width;
@@ -388,7 +394,7 @@ enum v4l2_ctrl_type qc_ctrl[] =
 static int read_frame(void)
 {
 	struct v4l2_buffer buf;
-	unsigned int i;
+	static int loop_count = 0;
 
 	CLEAR(buf);
 	buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -396,32 +402,33 @@ static int read_frame(void)
 
 	ioctl(fd, VIDIOC_DQBUF, &buf);	//出列采集的帧缓冲
 
-	if ((fps_test == 1) || (lost_frame_test == 1))
-		printf("process image %ld sec %ld usec\n", buf.timestamp.tv_sec, buf.timestamp.tv_usec);
-
 	assert(buf.index < n_buffers);
-//      printf ("buf.index dq is %d,\n",buf.index);
-//      printf ("buf.m.offset = 0x%x\n",buf.m.offset);
-	//disp_set_addr(320,240,&buf.m.offset);
-	disp_set_addr(disp_size.width, disp_size.height, &buf.m.offset);
 
-	//printf ("press ENTER to continue!\n");
-	//getchar();
-	//fwrite(buffers[buf.index].start, buffers[buf.index].length, 1, file_fd); //将其写入文件中
+	++loop_count;
 
-	if (lost_frame_test == 1)
+	if ( loop_count == 1 )
 	{
-		if (count % 31 == 0)
-		{
-			printf("count = %d,delay\n", count);
-			for (i = 0; i < 0x1ffffff; i++)
-			{
+		printf("#%d idx %d, offset 0x%x\n", loop_count, buf.index, buf.m.offset);
+		disp_set_addr(disp_size.width, disp_size.height, &buf.m.offset);
 
-			}
-		}
+		printf("skip qbuf\n");
+		return 1;
+	} 
+	else if ( loop_count == 300 )
+	{
+		printf("#%d idx %d, offset 0x%x\n", loop_count, buf.index, buf.m.offset);
+		disp_set_addr(disp_size.width, disp_size.height, &buf.m.offset);
+		printf("set again\n");
+	} 
+	else if ( loop_count > 300 )
+	{
+		disp_set_addr(disp_size.width, disp_size.height, &buf.m.offset);
 	}
 
+
+
 	ioctl(fd, VIDIOC_QBUF, &buf);	//再将其入列
+
 
 	return 1;
 }
@@ -468,8 +475,8 @@ int disp_int(int w, int h)
 	layer_para.src_win.height = h;
 	layer_para.scn_win.x = 0;
 	layer_para.scn_win.y = 0;
-	layer_para.scn_win.width = LCD_WIDTH;	//800;
-	layer_para.scn_win.height = LCD_HEIGHT;	//480;
+	layer_para.scn_win.width = 480; 
+	layer_para.scn_win.height = 480;
 	arg[0] = sel;
 	arg[1] = hlay;
 	arg[2] = (__u32) & layer_para;
@@ -531,16 +538,6 @@ int disp_on()
 
 int disp_set_addr(int w, int h, unsigned int *addr)
 {
-#if 0
-	layer_para.fb.addr[0] = *addr;	//your Y address,modify this
-	layer_para.fb.addr[1] = *addr + w * h;	//your C address,modify this
-	layer_para.fb.addr[2] = *addr + w * h * 3 / 2;
-
-	arg[0] = sel;
-	arg[1] = hlay;
-	arg[2] = (__u32) & layer_para;
-	ioctl(disphd, DISP_CMD_LAYER_SET_PARA, (void *) arg);
-#endif
 	__disp_video_fb_t fb_addr;
 	memset(&fb_addr, 0, sizeof(__disp_video_fb_t));
 
@@ -548,8 +545,6 @@ int disp_set_addr(int w, int h, unsigned int *addr)
 	fb_addr.top_field_first = 0;
 	fb_addr.frame_rate = 25;
 	fb_addr.addr[0] = *addr;
-//      fb_addr.addr[1] = *addr + w * h;
-//      fb_addr.addr[2] = *addr + w*h*3/2;
 
 	switch (csi_format)
 	{
@@ -619,9 +614,6 @@ int main_test(void)
 	enum v4l2_buf_type type;
 	struct v4l2_cropcap cropcap;
 
-	//fd = open (dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);//打开设备
-	//fd = open (dev_name, O_RDWR /* required */ | O_NONBLOCK, 0);//打开设备
-	//close (fd);
 	fd = open(dev_name, O_RDWR /* required */  | O_NONBLOCK, 0);	//打开设备
 
 	if (invalid_ops)
@@ -713,8 +705,8 @@ int main_test(void)
 		//goto close;
 	}
 
-	disp_size.width = fmt.fmt.pix.width;
-	disp_size.height = fmt.fmt.pix.height;
+	//disp_size.width = fmt.fmt.pix.width;
+	//disp_size.height = fmt.fmt.pix.height;
 
 //              printf("%s %d\n",__FILE__,__LINE__);
 	if (ioctl_test == 1)
@@ -761,18 +753,6 @@ int main_test(void)
 		printf("numerator = %d\n", parms.parm.capture.timeperframe.numerator);
 		printf("denominator = %d\n", parms.parm.capture.timeperframe.denominator);
 
-//              //Test VIDIOC_S_PARM
-//                      parms.parm.capture.timeperframe.denominator = fps;//
-//
-//                      if (-1 == ioctl (fd, VIDIOC_S_PARM, &parms)) //获取帧率
-//                                      printf ("VIDIOC_G_PARM error\n");
-//
-//              //Test VIDIOC_G_PARM
-//                      if (-1 == ioctl (fd, VIDIOC_G_PARM, &parms)) //获取帧率
-//                                      printf ("VIDIOC_G_PARM error\n");
-//
-//                      printf("numerator = %d\n",parms.parm.capture.timeperframe.numerator);
-//                      printf("denominator = %d\n",parms.parm.capture.timeperframe.denominator);
 	}
 	//count=read_num;
 
@@ -840,7 +820,6 @@ int main_test(void)
 	count = read_num;
 
 	while (count-- > 0)
-//      while(1)
 	{
 		//gettimeofday(&time_test,&tz);
 
@@ -980,7 +959,12 @@ int main_test(void)
 			printf("munmap error");
 		}
 	}
+
 	disp_stop();
+
+	printf("before disp_quit()\n");
+	printf("press ENTER key to continue!\n");
+	getchar();
 	disp_quit();
 
 	close(fd);
@@ -990,209 +974,20 @@ int main_test(void)
 
 int main(void)
 {
-	int i;
-	struct test_case *test_ptr;
-
-	test_num = 1;
-	read_num = 200;
-
-	req_frame_num = 5;
-	input_size.width = 1280;	//1600;//640;
-	input_size.height = 1024;	//1200;//480;
-//              disp_size.width = 1280;//1600;//640;
-//              disp_size.height = 1024;//1200;//480;
-	csi_format = V4L2_PIX_FMT_GREY;
-	disp_format = DISP_FORMAT_ARGB8888;
-	disp_mode = DISP_MOD_NON_MB_PLANAR;
-	disp_seq = DISP_SEQ_ARGB;
-
-	printf("********************************************************************Read stream test start,capture 1000 frames,press to continue\n");
-	getchar();
-
-	read_num = 1000;
-	main_test();
-
-//printf("********************************************************************fps test start,press to continue\n");
-//              getchar();
-//
-//              fps_test=1;
-//              read_num=30;
-//              main_test();
-//              fps_test=0;
-
-//printf("********************************************************************IOCTL invalid test start,press to continue\n");
-//              getchar();
-//              invalid_ops=1;
-//              main_test();
-//              invalid_ops=0;
-//
-//printf("********************************************************************Try and set invalid format test start,press to continue\n");
-//              getchar();
-//
-//              invalid_fmt_test=1;
-//              main_test();
-//              invalid_fmt_test=0;
-//
-//
-//printf("********************************************************************ENUMFMT,SETFMT,GETFMT test start,press to continue\n");
-//              getchar();
-//              ioctl_test=1;
-//              main_test();
-//              ioctl_test=0;
-//
-//
-//printf("********************************************************************Read one frame test start,capture 1 frame,press to continue\n");
-//              getchar();
-//              read_num=1;
-//              main_test();
-//
-//printf("********************************************************************Read stream test start,capture 1000 frames,press to continue\n");
-//              getchar();
-//
-//              read_num = 1000;
-//              main_test();
-
-//printf("********************************************************************Req buffer test start,press to continue\n");
-//              getchar();
-//
-//              read_num = 100;
-//              for(i=1;i<7;i++)
-//              {
-//                      printf("Req buffer count = %d, capture 100 frames\n",i);
-//                      req_frame_num = i;
-//                      main_test();
-//                      printf("press to continue\n");
-//                      getchar();
-//              }
-//
-//
-//
-//printf("********************************************************************V4L2 control test start,press to continue\n");
-//              getchar();
-//              control_test=1;
-//              csi_format=V4L2_PIX_FMT_NV16;
-//              disp_format=DISP_FORMAT_YUV422;
-//              disp_mode=DISP_MOD_NON_MB_UV_COMBINED;
-//              disp_seq=DISP_SEQ_UVUV;
-//              main_test();
-//              control_test=0;
-//
-	printf("********************************************************************resolution and format test start,press to continue\n");
-	getchar();
-
-	read_num = 200;
-
-	for (i = 0; i < 30; i++)	//16 //30
-	{
-		test_ptr = &test_case_set[i];
-		input_size.width = test_ptr->input_width;
-		input_size.height = test_ptr->input_height;
-//                      disp_size.width = test_ptr->disp_width;
-//                      disp_size.height = test_ptr->disp_height;
-		csi_format = test_ptr->csi_format;
-		disp_format = test_ptr->disp_format;
-		disp_mode = test_ptr->disp_mode;
-		disp_seq = test_ptr->disp_seq;
-
-		printf("***************************************************************************************\ninput size:%dx%d\n", input_size.width, input_size.height);
-
-		switch (csi_format)
-		{
-		case V4L2_PIX_FMT_GREY:
-			printf("format: V4L2_PIX_FMT_GREY\n");
-			break;
-		case V4L2_PIX_FMT_YUV422P:
-			printf("format: V4L2_PIX_FMT_YUV422P\n");
-			break;
-		case V4L2_PIX_FMT_YUV420:
-			printf("format: V4L2_PIX_FMT_YUV420\n");
-			break;
-		case V4L2_PIX_FMT_NV16:
-			printf("format: V4L2_PIX_FMT_NV16\n");
-			break;
-		case V4L2_PIX_FMT_NV12:
-			printf("format: V4L2_PIX_FMT_NV12\n");
-			break;
-		case V4L2_PIX_FMT_HM12:
-			printf("format: V4L2_PIX_FMT_HM12\n");
-			break;
-		case V4L2_PIX_FMT_YUYV:
-			printf("format: V4L2_PIX_FMT_YUYV\n");
-			break;
-		case V4L2_PIX_FMT_YVYU:
-			printf("format: V4L2_PIX_FMT_YVYU\n");
-			break;
-		case V4L2_PIX_FMT_UYVY:
-			printf("format: V4L2_PIX_FMT_UYVY\n");
-			break;
-		case V4L2_PIX_FMT_VYUY:
-			printf("format: V4L2_PIX_FMT_VYUY\n");
-			break;
-		default:
-			printf("format: error\n");
-			break;
-		}
-
-		printf("***************************************************************************************\n");
-		main_test();
-		printf("press to continue\n");
-		getchar();
-	}
-
-	printf("********************************************************************lost frame test start,press to continue\n");
-	getchar();
-	lost_frame_test = 1;
-	fps = 30;
-	read_num = 200;
-	req_frame_num = 4;
-	input_size.width = 1280;
-	input_size.height = 1024;
-	disp_size.width = 640;
+	req_frame_num = 3;
+	input_size.width = 480;	
+	input_size.height = 480;
+	disp_size.width = 480;
 	disp_size.height = 480;
 	csi_format = V4L2_PIX_FMT_GREY;
 	disp_format = DISP_FORMAT_ARGB8888;
 	disp_mode = DISP_MOD_NON_MB_PLANAR;
 	disp_seq = DISP_SEQ_ARGB;
+
+	read_num = 600;
 	main_test();
-//
-//
-//printf("********************************************************************fps test start,press to continue\n");
-//              getchar();
-//
-//              printf("set fps to 30fps\n");
-//              fps_test=1;
-//              fps=30;
-//              read_num=30;
-//              req_frame_num = 4;
-//              input_size.width = 640;
-//              input_size.height = 480;
-//              disp_size.width = 640;
-//              disp_size.height = 480;
-//              csi_format=V4L2_PIX_FMT_NV16;
-//              disp_format=DISP_FORMAT_YUV422;
-//              disp_mode=DISP_MOD_NON_MB_UV_COMBINED;
-//              disp_seq=DISP_SEQ_UVUV;
-//              main_test();
-//
-//
-//
-//              printf("set fps to 15fps\n");
-//              fps=15;
-//              read_num=30;
-//              req_frame_num = 4;
-//              input_size.width = 640;
-//              input_size.height = 480;
-//              disp_size.width = 640;
-//              disp_size.height = 480;
-//              csi_format=V4L2_PIX_FMT_NV16;
-//              disp_format=DISP_FORMAT_YUV422;
-//              disp_mode=DISP_MOD_NON_MB_UV_COMBINED;
-//              disp_seq=DISP_SEQ_UVUV;
-//              main_test();
 
-	printf("********************************************************************test done,press to end\n");
-	getchar();
-
+	disp_on();
 	exit(EXIT_SUCCESS);
 	return 0;
 }
