@@ -22,7 +22,8 @@ ALL_OBJ=$(ALL_SRC:%.c=%.o)
 #endif
 
 all: $(ALL_OBJ)
-	$(CC) $(LDFLAGS) $(CFLAGS) -o test $(ALL_OBJ)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o fb fb.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -o fb2 fb2.o
 
 #.SUFFIXES: .o .exe
 #.o.exe:
