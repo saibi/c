@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
 	gst_init(&argc, &argv);
 
 	/* build the pipeline */
-	pipeline = gst_parse_launch("playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm", NULL);
+	//pipeline = gst_parse_launch("playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm", NULL);
+	pipeline = gst_parse_launch("playbin uri=file:///home/saibi/saibi-mini9/hdd/w64/movie/201905/Bad.Police.2019.FRENCH.720p.WEB.H264-EXTREME.mkv", NULL);
 
 	/* start playing */
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);

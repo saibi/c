@@ -15,13 +15,13 @@ LIBS= `pkg-config --libs gstreamer-1.0`
 	#-Wimplicit-prototypes # -ansi-pedantic
 
 
-TARGET = test
 
 ALL_SRC=$(wildcard *.c)
 ALL_OBJ=$(ALL_SRC:%.c=%.o)
 
-all: basic_tutorial-1.o 
-	$(CC) -o $(TARGET) basic_tutorial-1.o $(LIBS) 
+all: $(ALL_OBJ)
+	$(CC) -o t1 basic_tutorial-1.o $(LIBS) 
+	$(CC) -o t2 basic_tutorial-2.o $(LIBS) 
 
 .SUFFIXES: .o .c
 .c.o:
