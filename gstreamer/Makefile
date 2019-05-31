@@ -18,15 +18,14 @@ LIBS= `pkg-config --libs gstreamer-1.0`
 
 ALL_SRC=$(wildcard *.c)
 ALL_OBJ=$(ALL_SRC:%.c=%.o)
+ALL_BIN=$(ALL_SRC:%.c=%)
 
 all: $(ALL_OBJ)
-	$(CC) -o t1 basic_tutorial-1.o $(LIBS) 
-	$(CC) -o t2 basic_tutorial-2.o $(LIBS) 
 
-.SUFFIXES: .o .c
-.c.o:
+%.o : %.c
 	$(CC) $(CFLAGS) -c $< 
+	$(CC) -o $(basename $@) $@ $(LIBS)
 
 
 clean:
-	rm -f *.o $(TARGET)
+	rm -f *.o $(ALL_BIN)
