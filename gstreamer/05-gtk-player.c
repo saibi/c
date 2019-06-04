@@ -357,7 +357,7 @@ static void analyze_streams(CustomData * data)
 				g_free(str);
 			}
 
-			if (gst_tag_list_get_string(tags, GST_TAG_BITRATE, &rate))
+			if (gst_tag_list_get_uint(tags, GST_TAG_BITRATE, &rate))
 			{
 				total_str = g_strdup_printf("  bitrate: %d\n", rate);
 				gtk_text_buffer_insert_at_cursor(text, total_str, -1);
