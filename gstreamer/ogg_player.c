@@ -53,6 +53,19 @@ static void on_pad_added(GstElement *element, GstPad *pad, gpointer data)
 	gst_object_unref(sinkpad);
 }
 
+static gboolean cb_print_position(GstElement *pipeline)
+{
+	gint64 pos, len;
+
+	if ( gst_element_query_position(pipeline, GST_FORMAT_TIME, &pos) && gst_element_query_duration(pipeline, GST_FORMAT_TIME, &len) ) 
+	{
+		g_print("Time: %" GST_TIME_FORMAT " / %" GST_TIME_FORMAT "\r", GST_TIME_ARGS(pos), GST_TIME_ARGS(len));
+	}
+
+	/* call me again */
+	return TRUE;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -121,6 +134,9 @@ int main(int argc, char *argv[])
 	g_print("Now playing: %s\n", argv[1]);
 	gst_element_set_state(pipeline, GST_STATE_PLAYING);
 
+
+	/* add query cb */
+	g_timeout_add(200, (GSourceFunc) cb_print_position, pipeline);
 
 	/* iterate */
 	g_print ("Running...\n");
