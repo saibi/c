@@ -1,44 +1,29 @@
 #include "edc-host.h"
 
-EdcHost *edc_host_new(void)
+static void edc_host_finalize(gpointer obj)
 {
-	EdcHost *host;
-
-	host = g_new0(EdcHost, 1);
-
-	if (!host)
-		return NULL;
-
-	host->ref_count = 1;
-
-	return host;
-}
-
-static void edc_host_destroy(EdcHost *host)
-{
-	g_return_if_fail( host != NULL );
+	EdcHost *host = obj;
 
 	g_free(host->name);
 	g_free(host->address);
 	g_free(host->user);
 	g_free(host->password);
-	g_free(host);
 }
 
-EdcHost * edc_host_ref(EdcHost *host)
+EdcHost *edc_host_new(void)
 {
-	g_return_val_if_fail( host != NULL );
-	
-	g_atomic_int_inc(&host->ref_count);
+	EdcHost *host;
+
+	host = edc_object_alloc(edc_host_finalize, sizeof(EdcHost));
+
+	if (!host)
+		return NULL;
+
+	host->name = NULL;
+	host->address = NULL;
+	host->user = NULL;
+	host->password = NULL;
 
 	return host;
 }
 
-void edc_host_unref(EdcHost * host)
-{
-	g_return_if_fail(host != NULL);
-
-	if ( g_atomic_int_dec_and_test(&host->ref_count))
-		edc_host_destroy(host);
-
-}

@@ -12,7 +12,7 @@ CFLAGS=	--sysroot=$(SYSROOT) \
 	-Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef \
 	-Wpointer-arith -Wcast-align -Wbad-function-cast \
 	-I. \
-	`pkg-config --cflags gstreamer-1.0` 
+	`pkg-config --cflags gstreamer-video-1.0 gstreamer-1.0` 
 	#`pkg-config --cflags gstreamer-audio-1.0 gstreamer-video-1.0 gtk+-3.0 gstreamer-1.0 gstreamer-pbutils-1.0` 
 	# normal `pkg-config --cflags gstreamer-1.0`
 	# for gtk-player `pkg-config --cflags gstreamer-video-1.0 gtk+-3.0  gstreamer-1.0` 
@@ -20,7 +20,7 @@ CFLAGS=	--sysroot=$(SYSROOT) \
 LFLAGS = -Wl,-rpath-link,$(SYSROOT)/usr/lib/aarch64-linux-gnu -Wl,-rpath-link,$(SYSROOT)/lib/aarch64-linux-gnu --sysroot=$(SYSROOT)
 
 LIBS= \
-	`pkg-config --libs gstreamer-1.0` 
+	`pkg-config --libs gstreamer-video-1.0 gstreamer-1.0` 
 
 	#`pkg-config --libs gstreamer-audio-1.0 gstreamer-video-1.0 gtk+-3.0  gstreamer-1.0 gstreamer-pbutils-1.0` 
 	#-D_GCC_  
@@ -29,7 +29,7 @@ LIBS= \
 
 
 #ALL_SRC=$(wildcard *.c)
-ALL_SRC=3-dynamic3.c
+ALL_SRC=3-dynamic3.c 05-gtk-player.c
 ALL_OBJ=$(ALL_SRC:%.c=%.o)
 ALL_BIN=$(ALL_SRC:%.c=%)
 
