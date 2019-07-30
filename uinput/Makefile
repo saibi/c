@@ -1,41 +1,33 @@
 OS=$(shell uname -o)
 CC=gcc
-LD=ld
-AR=ar
 
 CFLAGS=-Wall -Wstrict-prototypes -Wmissing-declarations  \
 	-Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef \
 	-Wpointer-arith -Wcast-align -Wbad-function-cast \
 	-I. -D_GCC_ 
-	#-D_VCA_DCS_PACKED_BINARY_CODE_
-	#-D__BIG_ENDIAN__ 
 	#-Wimplicit-prototypes # -ansi-pedantic
 
+CROSS_CC=/opt/gcc-linaro-arm-linux-gnueabihf-4.8-2014.04_linux/bin/arm-linux-gnueabihf-gcc
 
-#ALL_SRC=$(wildcard *.c)
-#ALL_OBJ=$(ALL_SRC:%.c=%.o)
-#ifeq ($(OS),Cygwin)
-#ALL_EXE=$(ALL_SRC:%.c=%.exe)
-#else
-#ALL_EXE=$(ALL_SRC:%.c=%)
-#endif
 
 OBJS=key.o
 
-all: key
-
-test: $(OBJS)	
-	$(CC) $(CFLAGS) -o key $(OBJS)
-
-.SUFFIXES: .o .exe
-
-.o.exe:
-	$(CC) -Wall -o $@ $<
+all: key 
 
 
-run:
-	./test
+
+key: $(OBJS)
+	$(CC) -o $@ $(OBJS)
+
+a20_key: $(OBJS)
+	$(CROSS_CC) -o $@
+
+
+%.o : %.c
+	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) test
+	rm -f $(OBJS) key a20_key
 
+a20:
+	$(CROSS_CC) $(CFLAGS) -I/usr/include -o a20_key key.c
