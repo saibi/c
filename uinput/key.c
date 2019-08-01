@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <fcntl.h>
 
 #include <string.h>
@@ -16,9 +17,10 @@ static void emit(int fd, int type, int code, int val)
 	ie.type = type;
 	ie.code = code;
 	ie.value = val;
+	gettimeofday(&ie.time, NULL);
 	/* timestamp values below are ignored */
-	ie.time.tv_sec = 0;
-	ie.time.tv_usec = 0;
+	//ie.time.tv_sec = 0;
+	//ie.time.tv_usec = 0;
 
 	int res = write(fd, &ie, sizeof(ie));
 	printf("emit write bytes=%d fd=%d code=%d val=%d\n", res, fd, code, val);
@@ -57,8 +59,8 @@ int main(void)
 	memset(&uud, 0, sizeof(uud));
 	snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput-keyboard");
 	uud.id.bustype = BUS_HOST;
-	uud.id.vendor = 0x1;
-	uud.id.product = 0x2;
+	uud.id.vendor = 0xc8;
+	uud.id.product = 0xc8;
 	uud.id.version = 1;
 
 	write(fd, &uud, sizeof(uud));
