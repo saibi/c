@@ -1,0 +1,2 @@
+cmake CMakeFile.txt
+make
