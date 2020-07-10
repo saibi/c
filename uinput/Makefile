@@ -19,15 +19,15 @@ all: key
 key: $(OBJS)
 	$(CC) -o $@ $(OBJS)
 
-a20_key: $(OBJS)
-	$(CROSS_CC) -o $@
+
+a20: 
+	$(CROSS_CC) $(CFLAGS) -I/usr/include -o a20_enter key_enter.c
+	$(CROSS_CC) $(CFLAGS) -I/usr/include -o a20_f1 key_f1.c
 
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) key a20_key
+	rm -f $(OBJS) key a20_key a20_enter a20_f1
 
-a20:
-	$(CROSS_CC) $(CFLAGS) -I/usr/include -o a20_key key.c
