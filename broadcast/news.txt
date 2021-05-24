@@ -1,0 +1,9 @@
+Google has launched a communications system that uses the company’s Android phones to detect earthquakes. It aims to provide timely information about earthquakes to phones that run the mobile operating system.
+
+The new warning system has already been tested in California, which has more damaging quakes than any other part of the United States.
+
+To develop the system, the company worked with the U.S. Geological Survey - USGS - a federal agency that uses seismographic equipment to measure earthquake activity.
+
+Technology for predicting earthquakes does not yet exist. But the USGS says it does have equipment to predict seismic activity near a quake. This means it is possible to warn people in areas where such activity is expected. People could then get several seconds or perhaps up to a minute of warning before a quake strikes.
+
+The USGS joined several university partners in developing the new warning system, called ShakeAlert.
