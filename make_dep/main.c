@@ -1,9 +1,13 @@
 #include "hello.h"
 #include "world.h"
+#include <hi.h>
 
-void main(void)
+int main(void)
 {
 	hello();
 	world();
+	hi();
+
+	return 0;
 }
 

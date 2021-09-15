@@ -1,18 +1,23 @@
+SRC_DIRS=. dirs
+SRCS0=$(foreach var,$(SRC_DIRS),$(wildcard $(var)/*.c))
+SRCS=$(foreach var,$(SRC_DIRS),$(wildcard $(var)/*.c))
 
-all: hello.o world.o main.o
-	gcc -Wall -o main main.o world.o hello.o
+OBJS=$(SRCS:%.c=%.o)
 
+INC_FLAGS=$(SRC_DIRS:%=-I%)
+CFLAGS=-Wall $(INC_FLAGS)
 
-#hello.o: hello.c hello.h
-#	gcc -Wall -c -o hello.o hello.c
+all: dep $(OBJS)
+	gcc -Wall -o main $(OBJS)
 
-#world.o: world.c ./world.h
-#	gcc -Wall -c -o world.o world.c
+.c.o:
+	@echo "compile $<"
+	gcc $(CFLAGS) -c $< -o $@
 
-dep:
-	gcc -MM -Wall hello.c world.c main.c > depend
+dep: 
+	gcc -MM $(SRCS) > depend
 
 clean:
-	rm -f *.o main
+	rm -f $(OBJS) main
 
 -include depend
