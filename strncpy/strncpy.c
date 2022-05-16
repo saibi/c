@@ -17,6 +17,9 @@ int main(void)
 	strncpy(src, "world", 5);
 	printf("src [%s]\n", src);
 
+	strncpy(src, "good", 8);
+	printf("src [%s]\n", src);
+
 	return 0;
 }
 
